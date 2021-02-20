@@ -50,34 +50,27 @@ bot.on("message", async message => {
                 enabled = !enabled;
                 console.log(`enabled: ${enabled}`);
             break;
-
-            case "cc":
-            case "clear":
-                message.channel.bulkDelete(99);
-            break;
     
             case "stop":
                 message.delete();
                 process.exit(0);
             return;
         }
-    } 
-        
+    }
+
     switch (message.content.slice(1)) {
 
-        case "updates":
+        case "botinvite":
+            message.delete();
+            message.channel.send("Invite me with this link: \nhttps://discord.com/api/oauth2/authorize?client_id=797233261670563870&permissions=522304&scope=bot");
+        break;
 
-            if (message.member.roles.cache.has(settings.updaterole) == true) {
-                message.member.roles.remove(settings.updaterole);
-            } else {
-                message.member.roles.add(settings.updaterole);
-            }
-
+        case "invite":
+            message.delete();
+            message.channel.send("Read all messages: \nhttps://discord.gg/dhAGG4BDZV");
         break;
 
     }
-
-    await message.delete();
     return;
     
 }
@@ -90,8 +83,7 @@ bot.on("message", async message => {
                 channel.send(message.content);
                 return;
             } else if (message.channel.type == 'dm') return;
-            channel.send(`${message.author.username}#${message.author.discriminator} : ${message.content}`);
-            message.delete();
+            channel.send(`${message.guild.name} | ${message.author.username}#${message.author.discriminator}: \n${message.content}`);
             return;
 
         
