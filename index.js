@@ -5,11 +5,11 @@ const bot = new Discord.Client();
 // other modules
 const fs = require("fs");
 require('dotenv').config();
-
+const settings = require('./settings.json');
 
 // settings
-var chatchannel = "812003740386459704";
-var syntaxmsg = 'Syntax: >[message]';
+var chatchannel = settings.outputchannel;
+var syntaxmsg = settings.helpDM;
 
 // creates collections for commands and aliases
 bot.commands = new Discord.Collection();
@@ -34,46 +34,67 @@ bot.on("ready", () => {
   console.log("[BOT] " + bot.user.username + " is online.")
   console.log("------------");
 
+  enabled = true;
+
 });
 
 bot.on("message", async message => {
 
     if(message.author.bot) return;
-
-    if(message.content.startsWith(">") == true) {
-
+    if(message.content.startsWith(">") == true ) {
+    if (message.author.id == process.env.OWNER) {
         switch (message.content.slice(1)) {
+
+            case "t":
+            case "toggle":
+                enabled = !enabled;
+                console.log(`enabled: ${enabled}`);
+            break;
 
             case "cc":
             case "clear":
-                if(message.author.id != process.env.OWNER) return;
                 message.channel.bulkDelete(99);
-            return;
-    
-            case "print":
-                if(message.author.id != process.env.OWNER) return;
-                message.channel.send(message.content);
-            return;
-    
-            default:
-                message.delete();
-                message.author.send(syntaxmsg)
-            return;
+            break;
     
             case "stop":
-                if(message.author.id != process.env.OWNER) return;
+                message.delete();
                 process.exit(0);
             return;
-    
         }
+    } 
         
-    } else {
+    switch (message.content.slice(1)) {
 
-        message.delete();
-        channel = bot.channels.cache.get(chatchannel);
-        channel.send(`${message.author.username}#${message.author.discriminator} : ${message.content.slice(1)}`);
-        return;
+        case "updates":
 
+            if (message.member.roles.cache.has(settings.updaterole) == true) {
+                message.member.roles.remove(settings.updaterole);
+            } else {
+                message.member.roles.add(settings.updaterole);
+            }
+
+        break;
+
+    }
+
+    await message.delete();
+    return;
+    
+}
+
+
+    if (enabled == true) {
+
+            channel = bot.channels.cache.get(chatchannel);
+            if (message.channel.type == 'dm' && message.author.id == process.env.OWNER){
+                channel.send(message.content);
+                return;
+            } else if (message.channel.type == 'dm') return;
+            channel.send(`${message.author.username}#${message.author.discriminator} : ${message.content}`);
+            message.delete();
+            return;
+
+        
     }
 
 })
